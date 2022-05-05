@@ -1,4 +1,4 @@
-module github.com/graval504/bluearchiveBot
+module github.com/Graval504/bluearchiveBot
 
 go 1.18
 
