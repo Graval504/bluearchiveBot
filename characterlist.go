@@ -72,9 +72,12 @@ func getListFromHtml(schoolNum int, html *goquery.Document, c chan []Student) {
 			try += 1
 			continue
 		}
-		name := []string{data.Text(), data.AttrOr("title", "THEREISNOLONGNAME")}
+		var name []string
 		if strings.Contains(data.AttrOr("title", "THEREISNOLONGNAME"), "/") {
+			name = []string{strings.ReplaceAll(strings.Split(data.AttrOr("title", "THEREISNOLONGNAME"), " ")[1], "/", "(") + ")", strings.ReplaceAll(data.AttrOr("title", "THEREISNOLONGNAME"), "/", "(") + ")"}
 			name = append(name, getNickname(data.AttrOr("title", "THEREISNOLONGNAME")))
+		} else {
+			name = []string{data.Text(), data.AttrOr("title", "THEREISNOLONGNAME")}
 		}
 		link := data.AttrOr("href", "THEREISNOLINK")
 		student := Student{}
