@@ -26,8 +26,8 @@ because sending request with go causes 403 error so can't use request from net/h
     	data := bluearchiveBot.GetCharacterInfoFromData(bluearchiveBot.GetCharacterList())
     	bluearchiveBot.CreateJsonFileFromData(data)
     }
-```
-
-It creates jsonfile.json on your directory.\
-this file provides data of bluearchive that this package will using.
+	```
+	It creates jsonfile.json on your directory.\
+	this file provides data of bluearchive that this package will using.
+	
 * If you get error, you should visit namu.wiki website and solve captcha.
