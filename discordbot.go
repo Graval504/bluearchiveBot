@@ -10,7 +10,9 @@ import (
 )
 
 func Discordbot() {
-	discord, err := discordgo.New("Bot " + "OTcwMjYwNTM4NzMyOTkwNDY0.G3upIR.5ITReG9IwMQuiy2ACHoQekd6xT6BBM9JbUZO9Q")
+	discord, err := discordgo.New("Bot " + GetDiscordToken())
+	//GetDiscordToken => Personal function that returns my disocrd bot Token. It doesn't exist on github.
+	//So you should change this to your own bot Token
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
