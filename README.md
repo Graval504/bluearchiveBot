@@ -2,7 +2,7 @@
 ## What is this?
 This is Packge for making my discord bot.\
 It helps users to access information of bluearchive from namu.wiki with commands.\
-It is my first project, and yet work in process, so only few functions are provided.\
+It is my first project, and yet work in process, so only few functions are provided.
 ## To use this package
 You can install this package using\
 `go get github.com/Graval504/bluearchiveBot`
