@@ -397,7 +397,9 @@ func getSkills(html *goquery.Document) struct {
 
 func stringToInt(str string) int {
 	val, err := strconv.Atoi(str)
-	checkErr(err)
+	if err != nil {
+		return -1
+	}
 	return val
 }
 

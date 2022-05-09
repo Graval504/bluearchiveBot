@@ -27,10 +27,10 @@ func GetCharacterList() []Student {
 	html, err := goquery.NewDocumentFromReader(reader)
 	checkErr(err)
 	channel := make(chan []Student, 15)
-	for schoolNum := 1; schoolNum <= 9; schoolNum++ {
+	for schoolNum := 1; schoolNum <= 10; schoolNum++ {
 		go getListFromHtml(schoolNum, html, channel)
 	}
-	for i := 1; i <= 9; i++ {
+	for i := 1; i <= 10; i++ {
 		data = append(data, <-channel...)
 	}
 	return data
@@ -50,6 +50,14 @@ func getStudentSelector(schoolNum int, studentNum int) string {
 	return selector
 }
 
+func getStudentSubSelector(schoolNum int, studentNum int) string {
+	selector := "#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > " +
+		"div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div > " +
+		"table > tbody > tr:nth-child(3) > td > div > div > dl > dd > div > div > table > tbody > " +
+		"tr:nth-child(" + fmt.Sprint(2*schoolNum) + ") > td > div > div > div:nth-child(" + fmt.Sprint(studentNum) + ") > em > span > div > a"
+	return selector
+}
+
 func getSchoolSelector(schoolNum int) string {
 	selector := "#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > " +
 		"div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div > " +
@@ -65,6 +73,9 @@ func getListFromHtml(schoolNum int, html *goquery.Document, c chan []Student) {
 	schoolName := html.Find(getSchoolSelector(schoolNum)).Text()
 	for {
 		data := html.Find(getStudentSelector(schoolNum, studentNum))
+		if data.Text() == "" {
+			data = html.Find(getStudentSubSelector(schoolNum, studentNum))
+		}
 		if try >= 3 {
 			break
 		}
@@ -75,7 +86,11 @@ func getListFromHtml(schoolNum int, html *goquery.Document, c chan []Student) {
 		var name []string
 		if strings.Contains(data.AttrOr("title", "THEREISNOLONGNAME"), "/") {
 			name = []string{strings.ReplaceAll(strings.Split(data.AttrOr("title", "THEREISNOLONGNAME"), " ")[1], "/", "(") + ")", strings.ReplaceAll(data.AttrOr("title", "THEREISNOLONGNAME"), "/", "(") + ")"}
-			name = append(name, getNickname(data.AttrOr("title", "THEREISNOLONGNAME")))
+			nickname := getNickname(data.AttrOr("title", "THEREISNOLONGNAME"))
+			name = append(name, nickname)
+			if strings.Contains(nickname, "정") {
+				name = append(name, getNewYearNickname(nickname))
+			}
 		} else {
 			name = []string{data.Text(), data.AttrOr("title", "THEREISNOLONGNAME")}
 		}
@@ -91,14 +106,18 @@ func getListFromHtml(schoolNum int, html *goquery.Document, c chan []Student) {
 }
 
 func getNickname(namedata string) string {
-	tempname := strings.Split(namedata, "/")
-	name := strings.Split(tempname[0], " ")[1]
-	nick := tempname[1]
-	if len(tempname[0]) >= 3 {
+	tempname := strings.Split(namedata, "/")   // [Full name,Eventname]
+	name := strings.Split(tempname[0], " ")[1] // Last name
+	nick := tempname[1]                        // Event name
+	if len(name) >= 9 {
 		return nick[:3] + name[3:]
-	} else if len(tempname[0]) == 2 {
+	} else if len(name) == 6 {
 		return nick[:3] + name
 	} else {
 		return nick + name
 	}
+}
+
+func getNewYearNickname(nickname string) string {
+	return strings.ReplaceAll(nickname, "정", "뉴")
 }
