@@ -138,7 +138,7 @@ func getInitialFigures(html *goquery.Document) int {
 	if selected.Text() == "" {
 		selected = html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
 	}
-	return stringToInt(strings.Trim(selected.Text(), "공격력 "))
+	return stringToInt(strings.TrimSpace(strings.Trim(selected.Text(), "공격력")))
 }
 
 func getStudentType(html *goquery.Document) [5]string {
@@ -271,24 +271,26 @@ func getExUpMaterial(html *goquery.Document) [4][2]int {
 	exUpMaterial := [4][2]int{}
 	j := 0
 	for i := 0; i < 4; i++ {
-		exUpMaterial[i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×"))
-		if exUpMaterial[i][0] == 99999 {
-			exUpMaterial[i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×"))
+		material0 := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
+		if material0 == "" {
+			material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
 		}
-		if exUpMaterial[i][0] == 99999 {
-			exUpMaterial[i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×"))
+		if material0 == "" {
+			material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
 		}
+		exUpMaterial[i][0] = stringToInt(material0)
 		if i == 0 {
 			j = 1
 			exUpMaterial[i][1] = 0
 		} else {
-			exUpMaterial[i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×"))
-			if exUpMaterial[i][1] == 99999 {
-				exUpMaterial[i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×"))
+			material1 := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
+			if material1 == "" {
+				material1 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
 			}
-			if exUpMaterial[i][1] == 99999 {
-				exUpMaterial[i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×"))
+			if material1 == "" {
+				material1 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
 			}
+			exUpMaterial[i][1] = stringToInt(material1)
 		}
 	}
 	return exUpMaterial
@@ -300,25 +302,29 @@ func getSkillUpMaterial(html *goquery.Document) [9][2]int {
 	skillUpMaterial[1] = [2]int{0, 0}
 	skillUpMaterial[8] = [2]int{0, 0}
 	skillUpMaterial[2][1] = 0
-	skillUpMaterial[2][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×"))
-	if skillUpMaterial[2][0] == 99999 {
-		skillUpMaterial[2][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×"))
+	material0 := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
+	if material0 == "" {
+		material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
 	}
-	if skillUpMaterial[2][0] == 99999 {
-		skillUpMaterial[2][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×"))
+	if material0 == "" {
+		material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
 	}
+	skillUpMaterial[2][0] = stringToInt(material0)
 	for i := 0; i < 5; i++ {
-		skillUpMaterial[3+i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×"))
-		skillUpMaterial[3+i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×"))
-		if skillUpMaterial[3+i][0] == 99999 {
-			skillUpMaterial[3+i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×"))
-			skillUpMaterial[3+i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×"))
+		material0 := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+		material1 := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
+		if material0 == "" {
+			material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+			material1 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
 		}
-		if skillUpMaterial[3+i][0] == 99999 {
-			skillUpMaterial[3+i][0] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×"))
-			skillUpMaterial[3+i][1] = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×"))
+		if material0 == "" {
+			material0 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+			material1 = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
 		}
+		skillUpMaterial[3+i][0] = stringToInt(material0)
+		skillUpMaterial[3+i][1] = stringToInt(material1)
 	}
+
 	return skillUpMaterial
 }
 
@@ -344,15 +350,16 @@ func getSkills(html *goquery.Document) struct {
 	for i := 0; i < 5; i++ {
 		skills.Ex.Skill[i].Level = i + 1
 		skills.Ex.Skill[i].Description = html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-		skills.Ex.Skill[i].Cost = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:"))
+		cost := strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		if skills.Ex.Skill[i].Description == "" {
 			skills.Ex.Skill[i].Description = html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Ex.Skill[i].Cost = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:"))
+			cost = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		}
 		if skills.Ex.Skill[i].Description == "" {
 			skills.Ex.Skill[i].Description = html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Ex.Skill[i].Cost = stringToInt(strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:"))
+			cost = strings.Trim(html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		}
+		skills.Ex.Skill[i].Cost = stringToInt(cost)
 	}
 	for i := 0; i < 10; i++ {
 		skills.Normal.SkillName = html.Find("#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div:nth-child(13) > div:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
@@ -389,11 +396,8 @@ func getSkills(html *goquery.Document) struct {
 }
 
 func stringToInt(str string) int {
-	if str == "" {
-		return 99999
-	}
-	val, _ := strconv.Atoi(str)
-	//checkErr(err)
+	val, err := strconv.Atoi(str)
+	checkErr(err)
 	return val
 }
 

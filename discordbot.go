@@ -9,8 +9,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func Discordbot() {
-	discord, err := discordgo.New("Bot " + GetDiscordToken())
+func Discordbot(token string) {
+	discord, err := discordgo.New("Bot " + token)
 	//GetDiscordToken => Personal function that returns my disocrd bot Token. It doesn't exist on github.
 	//So you should change this to your own bot Token
 	if err != nil {
