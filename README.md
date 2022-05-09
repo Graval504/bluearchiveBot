@@ -17,11 +17,9 @@ because sending request with go causes 403 error so can't use request from net/h
 * Getting Bluearchive data with jsonfile
     ```go
     package main
-
     import (
 	"github.com/Graval504/bluearchiveBot"
     )
-
     func main() {
     	data := bluearchiveBot.GetCharacterInfoFromData(bluearchiveBot.GetCharacterList())
     	bluearchiveBot.CreateJsonFileFromData(data)
