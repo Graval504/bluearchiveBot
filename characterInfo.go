@@ -76,8 +76,11 @@ type skillType struct {
 
 func requestWithPython(url string) *goquery.Document {
 	python := exec.Command("python", "-c",
-		"import requests; "+
+		"import sys; "+
+			"import requests; "+
 			"from bs4 import BeautifulSoup as bs; "+
+			"sys.stdout.reconfigure(encoding='utf-8'); "+
+			"sys.stdin.reconfigure(encoding='utf-8'); "+
 			"request_headers={'User-Agent':('PythonScraper'),}; "+
 			"response = requests.get('"+url+"',headers=request_headers); "+
 			"html = bs(response.text,'html.parser'); "+
