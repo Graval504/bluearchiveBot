@@ -11,6 +11,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const Table = ".wiki-table > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > div:nth-child(1) > div:nth-child(1) > dl:nth-child(1) > dd:nth-child(2) > div:nth-child(1) > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > "
+
 func GetCharacterList() []Student {
 	data := []Student{}
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -43,25 +45,19 @@ func checkErr(err error) {
 }
 
 func getStudentSelector(schoolNum int, studentNum int) string {
-	selector := "#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > " +
-		"div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div > " +
-		"table > tbody > tr:nth-child(3) > td > div > div > dl > dd > div > div > table > tbody > " +
+	selector := Table +
 		"tr:nth-child(" + fmt.Sprint(2*schoolNum) + ") > td > div > div > div:nth-child(" + fmt.Sprint(studentNum) + ") > span > div > a"
 	return selector
 }
 
 func getStudentSubSelector(schoolNum int, studentNum int) string {
-	selector := "#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > " +
-		"div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div > " +
-		"table > tbody > tr:nth-child(3) > td > div > div > dl > dd > div > div > table > tbody > " +
+	selector := Table +
 		"tr:nth-child(" + fmt.Sprint(2*schoolNum) + ") > td > div > div > div:nth-child(" + fmt.Sprint(studentNum) + ") > em > span > div > a"
 	return selector
 }
 
 func getSchoolSelector(schoolNum int) string {
-	selector := "#zgwHnsd5I > article > div:nth-child(7) > div > div > div:nth-child(6) > " +
-		"div > div > div > div > div > div > div:nth-child(11) > div:nth-child(1) > div > div > " +
-		"table > tbody > tr:nth-child(3) > td > div > div > dl > dd > div > div > table > tbody > " +
+	selector := Table +
 		"tr:nth-child(" + fmt.Sprint(2*schoolNum-1) + ") > td > div > strong > a > span"
 	return selector
 }
@@ -91,6 +87,8 @@ func getListFromHtml(schoolNum int, html *goquery.Document, c chan []Student) {
 			if strings.Contains(nickname, "정") {
 				name = append(name, getNewYearNickname(nickname))
 			}
+		} else if strings.Contains(data.AttrOr("title", "THEREISNOLONGNAME"), "(") {
+			name = []string{data.Text(), strings.Split(data.AttrOr("title", "THEREISNOLONGNAME"), "(")[0]}
 		} else {
 			name = []string{data.Text(), data.AttrOr("title", "THEREISNOLONGNAME")}
 		}
