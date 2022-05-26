@@ -14,7 +14,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const div string = ".WMzq6UCa > "
+//const div string = "body > div:nth-child(1) > div > div:nth-child(2) > article > div:nth-last-child(2)"
 
 func GetCharacterInfoFromData(data []Student) []Student {
 	info := []Student{}
@@ -74,7 +74,7 @@ type skillType struct {
 	}
 }
 
-func requestWithPython(url string) *goquery.Document {
+func requestWithPython(url string) *goquery.Selection {
 	python := exec.Command("python", "-c",
 		"import sys; "+
 			"import requests; "+
@@ -90,7 +90,9 @@ func requestWithPython(url string) *goquery.Document {
 	reader := bytes.NewReader(out)
 	html, err := goquery.NewDocumentFromReader(reader)
 	checkErr(err)
-	return html
+	selection := html.Find(".wiki-table-wrap.table-center")
+	div := selection.Parent()
+	return div
 }
 
 func getOneCharacterInfo(stud Student, c chan Student) {
@@ -110,56 +112,59 @@ func getOneCharacterInfo(stud Student, c chan Student) {
 	c <- stud
 }
 
-func getClubFromHtml(html *goquery.Document) string {
-	selected := html.Find(div + "div > table > tbody > tr:nth-child(6) > td:nth-child(2) > div > a").Text()
-	if selected == "" {
-		selected = html.Find(div + "div > table > tbody > tr:nth-child(5) > td:nth-child(2) > div > a").Text()
+func getClubFromHtml(html *goquery.Selection) string {
+	selected := html.Find("* > div > table > tbody > tr:nth-child(6) > td:nth-child(2) > div > a").First().Text()
+	if selected == "후우카" {
+		selected = html.Find("* > div > table > tbody > tr:nth-child(5) > td:nth-child(2) > div > a").First().Text()
+	}
+	if selected == "하루나" {
+		selected = "트레이닝 클럽"
 	}
 	return strings.TrimSpace(selected)
 }
 
-func getStarNum(html *goquery.Document) int {
-	selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
+func getStarNum(html *goquery.Selection) int {
+	selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
 	if selected.Children().Length() == 0 {
-		selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
+		selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
 	}
 	if selected.Children().Length() == 0 {
-		selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
+		selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
 	}
 	if selected.Children().Length() == 0 {
-		selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
+		selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(5) > a")
 	}
 	return selected.Length()
 }
 
-func getInitialFigures(html *goquery.Document) int {
-	selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
+func getInitialFigures(html *goquery.Selection) int {
+	selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
+		selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
 	}
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
+		selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
 	}
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
+		selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(3) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div")
 	}
 	return stringToInt(strings.TrimSpace(strings.Trim(selected.Text(), "공격력")))
 }
 
-func getStudentType(html *goquery.Document) [5]string {
+func getStudentType(html *goquery.Selection) [5]string {
 	j := 1
-	selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
+	selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
 	studtype, exist := selected.Attr("title")
 	if !exist {
-		selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
+		selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
 		studtype, exist = selected.Attr("title")
 	}
 	if !exist {
-		selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
+		selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
 		studtype, _ = selected.Attr("title")
 	}
 	if !exist {
-		selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
+		selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(1) > td > div > div:nth-child(1) > div > div > table > tbody > tr:nth-child(2)")
 		studtype, _ = selected.Attr("title")
 	}
 	if studtype == "블루아카 스페셜" {
@@ -170,28 +175,28 @@ func getStudentType(html *goquery.Document) [5]string {
 	var role, position, attackType, defenceType string
 	for i := 0; i < 3; i++ {
 		if j == 1 {
-			selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+			selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 			if selected.Text() == "" {
-				selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+				selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 			}
 			if selected.Text() == "" {
-				selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+				selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 			}
 			if selected.Text() == "" {
-				selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+				selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 			}
 			role = strings.TrimSpace(selected.Text())
 			j += 1
 		}
-		selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+		selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 		if selected.Text() == "" {
-			selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+			selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 		}
 		if selected.Text() == "" {
-			selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+			selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 		}
 		if selected.Text() == "" {
-			selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
+			selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child(" + fmt.Sprint(i+1) + ") > div > div:nth-child(" + fmt.Sprint(j) + ")")
 		}
 		switch i {
 		case 0:
@@ -205,63 +210,63 @@ func getStudentType(html *goquery.Document) [5]string {
 	return [5]string{studtype, role, position, attackType, defenceType}
 }
 
-func getAreaType(html *goquery.Document) [3]string {
+func getAreaType(html *goquery.Selection) [3]string {
 	areaType := [3]string{}
 	for i := 0; i < 3; i++ {
-		areaType[i] = html.Find(div+"div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
+		areaType[i] = html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
 		if areaType[i] == "X" {
-			areaType[i] = html.Find(div+"div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
+			areaType[i] = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
 		}
 		if areaType[i] == "X" {
-			areaType[i] = html.Find(div+"div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
+			areaType[i] = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
 		}
 		if areaType[i] == "X" {
-			areaType[i] = html.Find(div+"div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
+			areaType[i] = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(5) > div > div > table > tbody > tr:nth-child(2) > td > div > div:nth-child("+fmt.Sprint(i+4)+") > div:nth-child(2) > a").AttrOr("title", "활동X")[6:]
 		}
 	}
 	return areaType
 }
 
-func getWeapon(html *goquery.Document) string {
-	selected := html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
+func getWeapon(html *goquery.Selection) string {
+	selected := html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
+		selected = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
 	}
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
+		selected = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
 	}
 	if selected.Text() == "" {
-		selected = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
+		selected = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(1)")
 	}
 	return strings.TrimSpace(selected.Text())
 }
 
-func getEquipment(html *goquery.Document) [3]string {
+func getEquipment(html *goquery.Selection) [3]string {
 	equipment := [3]string{}
 	for i := 0; i < 3; i++ {
-		equipment[i] = html.Find(div + "div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
+		equipment[i] = html.Find("div:nth-child(11) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
 		if equipment[i] == "" {
-			equipment[i] = html.Find(div + "div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
+			equipment[i] = html.Find("div:nth-child(12) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
 		}
 		if equipment[i] == "" {
-			equipment[i] = html.Find(div + "div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
+			equipment[i] = html.Find("div:nth-child(13) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
 		}
 		if equipment[i] == "" {
-			equipment[i] = html.Find(div + "div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
+			equipment[i] = html.Find("div:nth-child(14) > div > table > tbody > tr:nth-child(2) > td > div:nth-child(3) > div:nth-child(11) > div > div > table > tbody > tr:nth-child(2) > td:nth-child(" + fmt.Sprint(2+i) + ")").Text()
 		}
 	}
 	return equipment
 }
 
-func getOoparts(html *goquery.Document) [2]string {
+func getOoparts(html *goquery.Selection) [2]string {
 	ooparts := [2]string{}
 	for i := 0; i < 2; i++ {
-		ooparts[i] = html.Find(div + "div:nth-child(13) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
+		ooparts[i] = html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
 		if ooparts[i] == "" {
-			ooparts[i] = html.Find(div + "div:nth-child(14) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
+			ooparts[i] = html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
 		}
 		if ooparts[i] == "" {
-			ooparts[i] = html.Find(div + "div:nth-child(15) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
+			ooparts[i] = html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(" + fmt.Sprint(3+i) + ")").Text()
 		}
 		if i == 1 {
 			ooparts[i] = strings.Split(ooparts[i], "(")[0]
@@ -272,28 +277,28 @@ func getOoparts(html *goquery.Document) [2]string {
 	return ooparts
 }
 
-func getExUpMaterial(html *goquery.Document) [4][2]int {
+func getExUpMaterial(html *goquery.Selection) [4][2]int {
 	exUpMaterial := [4][2]int{}
 	j := 0
 	for i := 0; i < 4; i++ {
-		material0 := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
+		material0 := strings.Trim(html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
 		if material0 == "" {
-			material0 = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
+			material0 = strings.Trim(html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
 		}
 		if material0 == "" {
-			material0 = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
+			material0 = strings.Trim(html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(3+j)+")").Text(), " ×")
 		}
 		exUpMaterial[i][0] = stringToInt(material0)
 		if i == 0 {
 			j = 1
 			exUpMaterial[i][1] = 0
 		} else {
-			material1 := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
+			material1 := strings.Trim(html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
 			if material1 == "" {
-				material1 = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
+				material1 = strings.Trim(html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
 			}
 			if material1 == "" {
-				material1 = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
+				material1 = strings.Trim(html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(3) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(2*i+2)+") > td:nth-child("+fmt.Sprint(4+j)+")").Text(), " ×")
 			}
 			exUpMaterial[i][1] = stringToInt(material1)
 		}
@@ -301,30 +306,30 @@ func getExUpMaterial(html *goquery.Document) [4][2]int {
 	return exUpMaterial
 }
 
-func getSkillUpMaterial(html *goquery.Document) [9][2]int {
+func getSkillUpMaterial(html *goquery.Selection) [9][2]int {
 	skillUpMaterial := [9][2]int{}
 	skillUpMaterial[0] = [2]int{0, 0}
 	skillUpMaterial[1] = [2]int{0, 0}
 	skillUpMaterial[8] = [2]int{0, 0}
 	skillUpMaterial[2][1] = 0
-	material0 := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
+	material0 := strings.Trim(html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
 	if material0 == "" {
-		material0 = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
+		material0 = strings.Trim(html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
 	}
 	if material0 == "" {
-		material0 = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
+		material0 = strings.Trim(html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child(6) > td:nth-child(4)").Text(), " ×")
 	}
 	skillUpMaterial[2][0] = stringToInt(material0)
 	for i := 0; i < 5; i++ {
-		material0 := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
-		material1 := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
+		material0 := strings.Trim(html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+		material1 := strings.Trim(html.Find("div:nth-child(13) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
 		if material0 == "" {
-			material0 = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
-			material1 = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
+			material0 = strings.Trim(html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+			material1 = strings.Trim(html.Find("div:nth-child(14) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
 		}
 		if material0 == "" {
-			material0 = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
-			material1 = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
+			material0 = strings.Trim(html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(3+i%2)+")").Text(), " ×")
+			material1 = strings.Trim(html.Find("div:nth-child(15) > div:nth-child(1) > div:nth-child(4) > div > table > tbody > tr > td > div > div > dl > dd > div > div > table > tbody > tr:nth-child("+fmt.Sprint(8+2*i)+") > td:nth-child("+fmt.Sprint(4+i%2)+")").Text(), " ×")
 		}
 		skillUpMaterial[3+i][0] = stringToInt(material0)
 		skillUpMaterial[3+i][1] = stringToInt(material1)
@@ -333,7 +338,7 @@ func getSkillUpMaterial(html *goquery.Document) [9][2]int {
 	return skillUpMaterial
 }
 
-func getSkills(html *goquery.Document) struct {
+func getSkills(html *goquery.Selection) struct {
 	Ex      exType
 	Normal  skillType
 	Passive skillType
@@ -345,56 +350,56 @@ func getSkills(html *goquery.Document) struct {
 		Passive skillType
 		Sub     skillType
 	}
-	skills.Ex.SkillName = html.Find(div + "div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+	skills.Ex.SkillName = html.Find("div:nth-child(13) > div:nth-last-child(8) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 	if skills.Ex.SkillName == "" {
-		skills.Ex.SkillName = html.Find(div + "div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+		skills.Ex.SkillName = html.Find("div:nth-child(14) > div:nth-last-child(8) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 	}
 	if skills.Ex.SkillName == "" {
-		skills.Ex.SkillName = html.Find(div + "div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+		skills.Ex.SkillName = html.Find("div:nth-child(15) > div:nth-last-child(8) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 	}
 	for i := 0; i < 5; i++ {
 		skills.Ex.Skill[i].Level = i + 1
-		skills.Ex.Skill[i].Description = html.Find(div + "div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-		cost := strings.Trim(html.Find(div+"div:nth-child(13) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
+		skills.Ex.Skill[i].Description = html.Find("div:nth-child(13) > div:nth-last-child(8) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+		cost := strings.Trim(html.Find("div:nth-child(13) > div:nth-last-child(8) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		if skills.Ex.Skill[i].Description == "" {
-			skills.Ex.Skill[i].Description = html.Find(div + "div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			cost = strings.Trim(html.Find(div+"div:nth-child(14) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
+			skills.Ex.Skill[i].Description = html.Find("div:nth-child(14) > div:nth-last-child(8) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			cost = strings.Trim(html.Find("div:nth-child(14) > div:nth-last-child(8) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		}
 		if skills.Ex.Skill[i].Description == "" {
-			skills.Ex.Skill[i].Description = html.Find(div + "div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			cost = strings.Trim(html.Find(div+"div:nth-child(15) > div:nth-child(3) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
+			skills.Ex.Skill[i].Description = html.Find("div:nth-child(15) > div:nth-last-child(8) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			cost = strings.Trim(html.Find("div:nth-child(15) > div:nth-last-child(8) > table > tbody > tr:nth-child("+fmt.Sprint(2+i)+") > td:nth-child(3)").Text(), "COST:")
 		}
 		skills.Ex.Skill[i].Cost = stringToInt(cost)
 	}
 	for i := 0; i < 10; i++ {
-		skills.Normal.SkillName = html.Find(div + "div:nth-child(13) > div:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-		skills.Passive.SkillName = html.Find(div + "div:nth-child(13) > div:nth-child(7) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-		skills.Sub.SkillName = html.Find(div + "div:nth-child(13) > div:nth-child(9) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+		skills.Normal.SkillName = html.Find("div:nth-child(13) > div:nth-last-child(6) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+		skills.Passive.SkillName = html.Find("div:nth-child(13) > div:nth-last-child(4) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+		skills.Sub.SkillName = html.Find("div:nth-child(13) > div:nth-last-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 		if skills.Normal.SkillName == "" {
-			skills.Normal.SkillName = html.Find(div + "div:nth-child(14) > div:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-			skills.Passive.SkillName = html.Find(div + "div:nth-child(14) > div:nth-child(7) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-			skills.Sub.SkillName = html.Find(div + "div:nth-child(14) > div:nth-child(9) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Normal.SkillName = html.Find("div:nth-child(14) > div:nth-last-child(6) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Passive.SkillName = html.Find("div:nth-child(14) > div:nth-last-child(4) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Sub.SkillName = html.Find("div:nth-child(14) > div:nth-last-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 		}
 		if skills.Normal.SkillName == "" {
-			skills.Normal.SkillName = html.Find(div + "div:nth-child(15) > div:nth-child(5) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-			skills.Passive.SkillName = html.Find(div + "div:nth-child(15) > div:nth-child(7) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
-			skills.Sub.SkillName = html.Find(div + "div:nth-child(15) > div:nth-child(9) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Normal.SkillName = html.Find("div:nth-child(15) > div:nth-last-child(6) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Passive.SkillName = html.Find("div:nth-child(15) > div:nth-last-child(4) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
+			skills.Sub.SkillName = html.Find("div:nth-child(15) > div:nth-last-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2) > div > strong").Text()
 		}
 		skills.Normal.Skill[i].Level = i + 1
 		skills.Passive.Skill[i].Level = i + 1
 		skills.Sub.Skill[i].Level = i + 1
-		skills.Normal.Skill[i].Description = html.Find(div + "div:nth-child(13) > div:nth-child(5) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-		skills.Passive.Skill[i].Description = html.Find(div + "div:nth-child(13) > div:nth-child(7) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-		skills.Sub.Skill[i].Description = html.Find(div + "div:nth-child(13) > div:nth-child(9) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+		skills.Normal.Skill[i].Description = html.Find("div:nth-child(13) > div:nth-last-child(6) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+		skills.Passive.Skill[i].Description = html.Find("div:nth-child(13) > div:nth-last-child(4) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+		skills.Sub.Skill[i].Description = html.Find("div:nth-child(13) > div:nth-last-child(2) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
 		if skills.Normal.Skill[i].Description == "" {
-			skills.Normal.Skill[i].Description = html.Find(div + "div:nth-child(14) > div:nth-child(5) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Passive.Skill[i].Description = html.Find(div + "div:nth-child(14) > div:nth-child(7) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Sub.Skill[i].Description = html.Find(div + "div:nth-child(14) > div:nth-child(9) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Normal.Skill[i].Description = html.Find("div:nth-child(14) > div:nth-last-child(6) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Passive.Skill[i].Description = html.Find("div:nth-child(14) > div:nth-last-child(4) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Sub.Skill[i].Description = html.Find("div:nth-child(14) > div:nth-last-child(2) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
 		}
 		if skills.Normal.Skill[i].Description == "" {
-			skills.Normal.Skill[i].Description = html.Find(div + "div:nth-child(15) > div:nth-child(5) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Passive.Skill[i].Description = html.Find(div + "div:nth-child(15) > div:nth-child(7) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
-			skills.Sub.Skill[i].Description = html.Find(div + "div:nth-child(15) > div:nth-child(9) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Normal.Skill[i].Description = html.Find("div:nth-child(15) > div:nth-last-child(6) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Passive.Skill[i].Description = html.Find("div:nth-child(15) > div:nth-last-child(4) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
+			skills.Sub.Skill[i].Description = html.Find("div:nth-child(15) > div:nth-last-child(2) > table > tbody > tr:nth-child(" + fmt.Sprint(2+i) + ") > td:nth-child(2)").Text()
 		}
 	}
 	return skills

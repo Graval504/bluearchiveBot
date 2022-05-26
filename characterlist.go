@@ -32,10 +32,10 @@ func GetCharacterList() []Student {
 	html, err := goquery.NewDocumentFromReader(reader)
 	checkErr(err)
 	channel := make(chan []Student, 15)
-	for schoolNum := 1; schoolNum <= 10; schoolNum++ {
+	for schoolNum := 1; schoolNum <= 11; schoolNum++ {
 		go getListFromHtml(schoolNum, html, channel)
 	}
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= 11; i++ {
 		data = append(data, <-channel...)
 	}
 	return data
